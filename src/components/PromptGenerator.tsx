@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Wand2, Sparkles, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const promptFrameworks = {
   standard: {
@@ -69,7 +70,7 @@ export const PromptGenerator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
-  const generatePrompt = () => {
+  const generatePrompt = async () => {
     if (!input.trim()) {
       toast({
         title: "Input required",
@@ -81,48 +82,41 @@ export const PromptGenerator = () => {
 
     setIsGenerating(true);
     
-    // Simulate AI generation
-    setTimeout(() => {
-      const framework = promptFrameworks[selectedFramework as keyof typeof promptFrameworks];
-      let prompt = "";
-      
-      switch (selectedFramework) {
-        case "standard":
-          prompt = `You are an expert assistant. ${input}. Please provide a comprehensive and helpful response with clear explanations and practical examples where applicable.`;
-          break;
-        case "reasoning":
-          prompt = `Think step by step about this problem: ${input}. Analyze the situation carefully, consider multiple perspectives, and provide a logical solution with clear reasoning for each step.`;
-          break;
-        case "race":
-          prompt = `Role: Expert advisor\nAction: ${input}\nContext: This task requires careful consideration and expertise\nExplanation: Please provide detailed reasoning and practical steps to accomplish this effectively.`;
-          break;
-        case "care":
-          prompt = `Context: ${input}\nAction: Provide comprehensive guidance\nResult: A clear, actionable solution\nExample: Include relevant examples to illustrate key points.`;
-          break;
-        case "ape":
-          prompt = `Action: ${input}\nPurpose: To achieve the best possible outcome\nExecution: Provide step-by-step instructions with clear methodology.`;
-          break;
-        case "create":
-          prompt = `Character: Expert in the relevant field\nRequest: ${input}\nExamples: Provide concrete examples\nAdjustments: Tailor the response to specific needs\nType: Comprehensive guide\nExtras: Include tips and best practices.`;
-          break;
-        case "tag":
-          prompt = `Task: ${input}\nAction: Provide detailed guidance\nGoal: Achieve the desired outcome efficiently and effectively.`;
-          break;
-        case "creo":
-          prompt = `Context: ${input}\nRequest: Comprehensive assistance\nExplanation: Provide clear reasoning and methodology\nOutcome: A practical, actionable solution.`;
-          break;
-        default:
-          prompt = `You are an expert assistant. ${input}. Please provide a comprehensive and helpful response.`;
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-prompt", {
+        body: { input, framework: selectedFramework }
+      });
+
+      if (error) {
+        throw error;
       }
-      
-      setGeneratedPrompt(prompt);
+
+      if (data?.error) {
+        toast({
+          title: "Error",
+          description: data.error,
+          variant: "destructive",
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      setGeneratedPrompt(data.prompt);
       setIsGenerating(false);
       
       toast({
         title: "Prompt generated!",
-        description: "Your AI prompt has been created successfully.",
+        description: "Your AI prompt has been created in your language.",
       });
-    }, 1500);
+    } catch (error) {
+      console.error("Error generating prompt:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate prompt. Please try again.",
+        variant: "destructive",
+      });
+      setIsGenerating(false);
+    }
   };
 
   const copyToClipboard = () => {
