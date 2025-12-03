@@ -6,6 +6,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Input validation constants
+const MAX_INPUT_LENGTH = 2000;
+const VALID_FRAMEWORKS = ['standard', 'reasoning', 'race', 'care', 'ape', 'create', 'tag', 'creo'];
+const VALID_LANGUAGES = ['en', 'hi', 'gu', 'mr', 'ta', 'te', 'kn', 'ml', 'bn', 'pa', 'or', 'as', 'ur'];
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -13,6 +18,35 @@ serve(async (req) => {
 
   try {
     const { input, framework, language } = await req.json();
+
+    // Input validation
+    if (!input || typeof input !== 'string') {
+      return new Response(
+        JSON.stringify({ error: "Input is required and must be a string" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (input.trim().length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Input cannot be empty" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (input.length > MAX_INPUT_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Input too long. Maximum ${MAX_INPUT_LENGTH} characters allowed.` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Framework validation (with fallback to 'standard')
+    const validatedFramework = framework && VALID_FRAMEWORKS.includes(framework) ? framework : 'standard';
+
+    // Language validation (with fallback to 'en')
+    const validatedLanguage = language && VALID_LANGUAGES.includes(language) ? language : 'en';
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -36,7 +70,7 @@ serve(async (req) => {
       ur: "Urdu (اردو)",
     };
 
-    const targetLanguage = languageNames[language] || "English";
+    const targetLanguage = languageNames[validatedLanguage] || "English";
 
     // Framework-specific detailed guidance based on GPT-5 prompting best practices
     const frameworkGuides: Record<string, string> = {
@@ -227,7 +261,7 @@ Apply these GPT-5 best practices:
 - Enable customization where beneficial
 </prompt_engineering_principles>
 
-${frameworkGuides[framework as string] || frameworkGuides.standard}
+${frameworkGuides[validatedFramework] || frameworkGuides.standard}
 
 <output_requirements>
 Generate a comprehensive, production-ready prompt that:
