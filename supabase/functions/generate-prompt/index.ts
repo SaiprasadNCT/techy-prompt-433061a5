@@ -12,12 +12,31 @@ serve(async (req) => {
   }
 
   try {
-    const { input, framework } = await req.json();
+    const { input, framework, language } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
+
+    // Language mapping for output
+    const languageNames: Record<string, string> = {
+      en: "English",
+      hi: "Hindi (हिन्दी)",
+      gu: "Gujarati (ગુજરાતી)",
+      mr: "Marathi (मराठी)",
+      ta: "Tamil (தமிழ்)",
+      te: "Telugu (తెలుగు)",
+      kn: "Kannada (ಕನ್ನಡ)",
+      ml: "Malayalam (മലയാളം)",
+      bn: "Bengali (বাংলা)",
+      pa: "Punjabi (ਪੰਜਾਬੀ)",
+      or: "Odia (ଓଡ଼ିଆ)",
+      as: "Assamese (অসমীয়া)",
+      ur: "Urdu (اردو)",
+    };
+
+    const targetLanguage = languageNames[language] || "English";
 
     // Framework-specific detailed guidance based on GPT-5 prompting best practices
     const frameworkGuides: Record<string, string> = {
@@ -153,14 +172,18 @@ CREO FRAMEWORK - Context, Request, Explanation, Outcome:
 
     const systemPrompt = `You are an expert AI prompt engineer trained on the latest prompting best practices from the GPT-5 Prompting Guide. Your task is to generate world-class AI prompts.
 
-<language_detection>
-CRITICAL INSTRUCTION: You MUST:
-1. Detect the language of the user's input
-2. Generate the ENTIRE prompt in that SAME language
-3. If input is in Hindi, output in Hindi. If Gujarati, output in Gujarati. If English, output in English.
-4. ALL sections, labels, instructions, and content must be in the detected language
-5. Do NOT translate any part to English if the input is in another language
-</language_detection>
+<language_requirement>
+CRITICAL INSTRUCTION - OUTPUT LANGUAGE: ${targetLanguage}
+You MUST generate the ENTIRE prompt in ${targetLanguage}. This is mandatory and non-negotiable.
+
+1. The user has explicitly selected ${targetLanguage} as their output language
+2. Generate ALL content in ${targetLanguage} - every word, every section, every label
+3. Do NOT use English unless ${targetLanguage} is English
+4. ALL sections, labels, headers, instructions, and content must be in ${targetLanguage}
+5. If ${targetLanguage} is Hindi, write everything in Hindi script (देवनागरी)
+6. If ${targetLanguage} is Gujarati, write everything in Gujarati script (ગુજરાતી)
+7. Translate technical terms appropriately for the target language
+</language_requirement>
 
 <self_reflection>
 Before generating the final prompt, internally:
@@ -235,7 +258,7 @@ Generate a comprehensive, production-ready prompt that:
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Generate a high-quality AI prompt for the following request. Remember to write the ENTIRE output in the same language as this input:\n\n${input}` }
+          { role: "user", content: `Generate a high-quality AI prompt for the following request. IMPORTANT: Write the ENTIRE output in ${targetLanguage} language only. Do not use any other language.\n\nUser request: ${input}` }
         ],
       }),
     });
