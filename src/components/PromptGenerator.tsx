@@ -5,9 +5,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Wand2, Sparkles, RefreshCw } from "lucide-react";
+import { Copy, Wand2, Sparkles, RefreshCw, Globe } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+
+const languages = [
+  { code: "en", name: "English" },
+  { code: "hi", name: "हिन्दी (Hindi)" },
+  { code: "gu", name: "ગુજરાતી (Gujarati)" },
+  { code: "mr", name: "मराठी (Marathi)" },
+  { code: "ta", name: "தமிழ் (Tamil)" },
+  { code: "te", name: "తెలుగు (Telugu)" },
+  { code: "kn", name: "ಕನ್ನಡ (Kannada)" },
+  { code: "ml", name: "മലയാളം (Malayalam)" },
+  { code: "bn", name: "বাংলা (Bengali)" },
+  { code: "pa", name: "ਪੰਜਾਬੀ (Punjabi)" },
+  { code: "or", name: "ଓଡ଼ିଆ (Odia)" },
+  { code: "as", name: "অসমীয়া (Assamese)" },
+  { code: "ur", name: "اردو (Urdu)" },
+];
 
 const promptFrameworks = {
   standard: {
@@ -66,6 +82,7 @@ const quickSuggestions = [
 export const PromptGenerator = () => {
   const [input, setInput] = useState("");
   const [selectedFramework, setSelectedFramework] = useState("standard");
+  const [selectedLanguage, setSelectedLanguage] = useState("");
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
@@ -80,11 +97,20 @@ export const PromptGenerator = () => {
       return;
     }
 
+    if (!selectedLanguage) {
+      toast({
+        title: "Language required",
+        description: "Please select an output language before generating",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsGenerating(true);
     
     try {
       const { data, error } = await supabase.functions.invoke("generate-prompt", {
-        body: { input, framework: selectedFramework }
+        body: { input, framework: selectedFramework, language: selectedLanguage }
       });
 
       if (error) {
@@ -208,9 +234,28 @@ export const PromptGenerator = () => {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium">Select Output Language *</span>
+              </div>
+              <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choose language for generated prompt" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border z-50">
+                  {languages.map((lang) => (
+                    <SelectItem key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <Button 
               onClick={generatePrompt}
-              disabled={isGenerating || !input.trim()}
+              disabled={isGenerating || !input.trim() || !selectedLanguage}
               variant="plum"
               size="lg"
               className="w-full"
