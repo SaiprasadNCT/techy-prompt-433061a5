@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, AlertTriangle, Info, Copy, Search } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useClipboard } from "@/hooks/useClipboard";
 
 interface CheckResult {
   overallScore: number;
@@ -23,6 +24,17 @@ export const PromptChecker = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [result, setResult] = useState<CheckResult | null>(null);
   const { toast } = useToast();
+  const { copyToClipboard } = useClipboard();
+  const timeoutRef = useRef<number | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const checkPrompt = () => {
     if (!prompt.trim()) {
@@ -37,7 +49,7 @@ export const PromptChecker = () => {
     setIsChecking(true);
     
     // Simulate prompt analysis
-    setTimeout(() => {
+    timeoutRef.current = window.setTimeout(() => {
       const wordCount = prompt.split(' ').length;
       const sentences = prompt.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
       const hasRole = prompt.toLowerCase().includes('you are') || prompt.toLowerCase().includes('act as');
@@ -146,12 +158,8 @@ export const PromptChecker = () => {
     }, 2000);
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(prompt);
-    toast({
-      title: "Copied!",
-      description: "Prompt copied to clipboard",
-    });
+  const handleCopy = () => {
+    copyToClipboard(prompt, "Prompt copied to clipboard");
   };
 
   const getScoreColor = (score: number) => {
@@ -226,7 +234,7 @@ export const PromptChecker = () => {
             
             {prompt && (
               <Button
-                onClick={copyToClipboard}
+                onClick={handleCopy}
                 variant="outline"
                 size="lg"
               >

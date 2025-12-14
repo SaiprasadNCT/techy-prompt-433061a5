@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Wand2, Sparkles, RefreshCw, Globe } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useClipboard } from "@/hooks/useClipboard";
 import { supabase } from "@/integrations/supabase/client";
 
 const languages = [
@@ -86,6 +87,7 @@ export const PromptGenerator = () => {
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
+  const { copyToClipboard } = useClipboard();
 
   const generatePrompt = async () => {
     if (!input.trim()) {
@@ -145,12 +147,8 @@ export const PromptGenerator = () => {
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedPrompt);
-    toast({
-      title: "Copied!",
-      description: "Prompt copied to clipboard.",
-    });
+  const handleCopy = () => {
+    copyToClipboard(generatedPrompt, "Prompt copied to clipboard.");
   };
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -283,7 +281,7 @@ export const PromptGenerator = () => {
                     Generated Prompt
                   </CardTitle>
                   <Button
-                    onClick={copyToClipboard}
+                    onClick={handleCopy}
                     variant="outline"
                     size="sm"
                   >

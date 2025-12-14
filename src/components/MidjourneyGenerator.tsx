@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Copy, Image, Camera, Palette, Wand2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useClipboard } from "@/hooks/useClipboard";
 
 const aspectRatios = [
   { value: "1:1", label: "Square (1:1)" },
@@ -42,6 +43,7 @@ export const MidjourneyGenerator = () => {
   const [additionalDetails, setAdditionalDetails] = useState("");
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const { toast } = useToast();
+  const { copyToClipboard } = useClipboard();
 
   const generatePrompt = () => {
     if (!subject.trim()) {
@@ -77,12 +79,8 @@ export const MidjourneyGenerator = () => {
     });
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedPrompt);
-    toast({
-      title: "Copied!",
-      description: "Prompt copied to clipboard",
-    });
+  const handleCopy = () => {
+    copyToClipboard(generatedPrompt, "Prompt copied to clipboard");
   };
 
   const handleQuickPrompt = (prompt: string) => {
@@ -231,7 +229,7 @@ export const MidjourneyGenerator = () => {
                     Generated Midjourney Prompt
                   </CardTitle>
                   <Button
-                    onClick={copyToClipboard}
+                    onClick={handleCopy}
                     variant="outline"
                     size="sm"
                   >

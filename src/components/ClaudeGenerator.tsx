@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Copy, User, Brain, FileText, Lightbulb } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useClipboard } from "@/hooks/useClipboard";
 
 const claudeFrameworks = {
   analytical: {
@@ -55,6 +56,7 @@ export const ClaudeGenerator = () => {
   const [outputStyle, setOutputStyle] = useState("");
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const { toast } = useToast();
+  const { copyToClipboard } = useClipboard();
 
   const generatePrompt = () => {
     if (!task.trim()) {
@@ -108,12 +110,8 @@ export const ClaudeGenerator = () => {
     });
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedPrompt);
-    toast({
-      title: "Copied!",
-      description: "Prompt copied to clipboard",
-    });
+  const handleCopy = () => {
+    copyToClipboard(generatedPrompt, "Prompt copied to clipboard");
   };
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -250,7 +248,7 @@ export const ClaudeGenerator = () => {
                     Generated Claude Prompt
                   </CardTitle>
                   <Button
-                    onClick={copyToClipboard}
+                    onClick={handleCopy}
                     variant="outline"
                     size="sm"
                   >

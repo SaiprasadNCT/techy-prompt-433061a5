@@ -6,6 +6,7 @@ import { PromptOptimizer } from "@/components/PromptOptimizer";
 import { ClaudeGenerator } from "@/components/ClaudeGenerator";
 import { PromptChecker } from "@/components/PromptChecker";
 import { ToolsSection } from "@/components/ToolsSection";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("chatgpt");
@@ -36,7 +37,9 @@ const Index = () => {
       <Header activeTab={activeTab} onTabChange={setActiveTab} />
       
       <main className="pt-8">
-        {renderActiveComponent()}
+        <ErrorBoundary>
+          {renderActiveComponent()}
+        </ErrorBoundary>
       </main>
       
       <ToolsSection onToolSelect={handleToolSelect} />
