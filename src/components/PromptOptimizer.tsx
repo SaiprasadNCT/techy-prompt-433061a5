@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Copy, Zap, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useClipboard } from "@/hooks/useClipboard";
 
 interface OptimizationResult {
   score: number;
@@ -19,6 +20,17 @@ export const PromptOptimizer = () => {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [result, setResult] = useState<OptimizationResult | null>(null);
   const { toast } = useToast();
+  const { copyToClipboard } = useClipboard();
+  const timeoutRef = useRef<number | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const optimizePrompt = () => {
     if (!originalPrompt.trim()) {
@@ -33,7 +45,7 @@ export const PromptOptimizer = () => {
     setIsOptimizing(true);
     
     // Simulate optimization analysis
-    setTimeout(() => {
+    timeoutRef.current = window.setTimeout(() => {
       const wordCount = originalPrompt.split(' ').length;
       const hasRole = originalPrompt.toLowerCase().includes('you are') || originalPrompt.toLowerCase().includes('act as');
       const hasContext = originalPrompt.length > 100;
@@ -111,12 +123,8 @@ export const PromptOptimizer = () => {
     }, 2000);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied!",
-      description: "Prompt copied to clipboard",
-    });
+  const handleCopy = (text: string) => {
+    copyToClipboard(text, "Prompt copied to clipboard");
   };
 
   const getScoreColor = (score: number) => {
@@ -272,7 +280,7 @@ export const PromptOptimizer = () => {
                       Optimized Prompt
                     </CardTitle>
                     <Button
-                      onClick={() => copyToClipboard(result.optimizedPrompt)}
+                      onClick={() => handleCopy(result.optimizedPrompt)}
                       variant="outline"
                       size="sm"
                     >
