@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sparkles, Brain, Image, Zap, CheckCircle, User } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 interface HeaderProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
@@ -54,6 +54,7 @@ export const Header = ({
             <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
               Free Tool
             </Badge>
+            <ThemeToggle />
             <Button variant="plum" size="sm">
               Join Community
             </Button>
