@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Wand2, Sparkles, RefreshCw, Globe } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -272,7 +273,31 @@ export const PromptGenerator = () => {
             </Button>
           </div>
 
-          {generatedPrompt && (
+          {isGenerating && (
+            <Card className="bg-gradient-subtle border-primary/20">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-40" />
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="p-4 bg-background/50 rounded-lg border border-primary/10 space-y-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <Skeleton className="h-5 w-24 rounded-full" />
+                  <Skeleton className="h-4 w-40" />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {generatedPrompt && !isGenerating && (
             <Card className="bg-gradient-subtle border-primary/20">
               <CardHeader>
                 <div className="flex items-center justify-between">
