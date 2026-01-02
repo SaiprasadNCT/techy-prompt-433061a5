@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { PromptGenerator } from "@/components/PromptGenerator";
 import { MidjourneyGenerator } from "@/components/MidjourneyGenerator";
 import { PromptOptimizer } from "@/components/PromptOptimizer";
@@ -43,6 +44,8 @@ const Index = () => {
       </main>
       
       <ToolsSection onToolSelect={handleToolSelect} />
+      
+      <Footer />
     </div>
   );
 };

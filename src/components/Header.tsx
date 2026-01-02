@@ -55,8 +55,10 @@ export const Header = ({
               Free Tool
             </Badge>
             <ThemeToggle />
-            <Button variant="plum" size="sm">
-              Join Community
+            <Button variant="plum" size="sm" asChild>
+              <a href="http://ai.saiprasadpoojari.in/" target="_blank" rel="noopener noreferrer">
+                Join Community
+              </a>
             </Button>
           </div>
         </div>
