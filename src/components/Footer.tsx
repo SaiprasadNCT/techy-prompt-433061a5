@@ -18,12 +18,12 @@ const socialLinks = [
 
 export const Footer = () => {
   return (
-    <footer className="bg-foreground text-background py-12">
+    <footer className="bg-zinc-900 text-white py-12">
       <div className="container mx-auto px-4">
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-foreground" />
+          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
+            <Sparkles className="w-6 h-6 text-zinc-900" />
           </div>
           <h2 className="text-2xl font-bold">Techyprompt</h2>
         </div>
@@ -34,7 +34,7 @@ export const Footer = () => {
             <a
               key={link.label}
               href={link.href}
-              className="text-sm text-background/80 hover:text-background transition-colors"
+              className="text-sm text-white/80 hover:text-white transition-colors"
             >
               {link.label}
             </a>
@@ -50,7 +50,7 @@ export const Footer = () => {
                 key={social.label}
                 href={social.href}
                 aria-label={social.label}
-                className="w-10 h-10 rounded-full border border-background/30 flex items-center justify-center hover:bg-background/10 transition-colors"
+                className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors"
               >
                 <IconComponent className="w-5 h-5" />
               </a>
@@ -59,7 +59,7 @@ export const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <p className="text-center text-sm text-background/60">
+        <p className="text-center text-sm text-white/60">
           Copyright © Techyprompt. All rights reserved.
         </p>
       </div>
